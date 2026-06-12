@@ -510,8 +510,15 @@ export default function App() {
         setSyncStatus('synced');
       } catch (err) {
         console.error(err);
-        setInitState('error');
-        setInitMsg(err.message);
+        const badToken = /bad credentials|401|unauthorized/i.test(err.message || '');
+        if (badToken) {
+          localStorage.removeItem('sb_gh_token');
+          setToken('');
+          setInitState('idle');
+        } else {
+          setInitState('error');
+          setInitMsg(err.message);
+        }
       }
     })();
   }, [token, initState]);
@@ -526,7 +533,14 @@ export default function App() {
       setSyncStatus('synced');
     } catch (err) {
       console.error('Sync error:', err);
-      setSyncStatus('error');
+      const badToken = /bad credentials|401|unauthorized/i.test(err.message || '');
+      if (badToken) {
+        localStorage.removeItem('sb_gh_token');
+        setToken('');
+        setInitState('idle');
+      } else {
+        setSyncStatus('error');
+      }
     }
   }, [token, user]);
 
