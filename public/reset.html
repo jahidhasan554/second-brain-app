@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Resetting Second Brain…</title>
+  <style>
+    body{background:#faf9f7;font-family:'Inter',system-ui,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;flex-direction:column;gap:16px}
+    .ring{width:40px;height:40px;border:3px solid rgba(249,115,22,.25);border-top-color:#f97316;border-radius:50%;animation:spin .8s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    p{color:#9a9895;font-size:15px;margin:0}
+    h2{color:#1a1918;font-size:1.3rem;margin:0;font-weight:700}
+  </style>
+</head>
+<body>
+  <div style="font-size:2.5rem">🧠</div>
+  <h2>Clearing everything…</h2>
+  <div class="ring"></div>
+  <p id="m">Removing service workers and cache…</p>
+  <script>
+    async function run() {
+      try {
+        if ('serviceWorker' in navigator) {
+          const regs = await navigator.serviceWorker.getRegistrations();
+          await Promise.all(regs.map(r => r.unregister()));
+        }
+        if ('caches' in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map(k => caches.delete(k)));
+        }
+        localStorage.clear();
+        sessionStorage.clear();
+        document.getElementById('m').textContent = '✅ Done! Redirecting to login…';
+        setTimeout(() => window.location.href = '/', 1000);
+      } catch(e) {
+        document.getElementById('m').textContent = 'Error: ' + e.message;
+      }
+    }
+    run();
+  </script>
+</body>
+</html>
